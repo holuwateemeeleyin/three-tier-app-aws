@@ -1,0 +1,1 @@
+SCENARIO: Your company is launching a new web application. The CTO has asked you to design and deploy a production-ready three-tier architecture on AWS: a web tier (Nginx), an application tier (Node.js), and a database tier (RDS PostgreSQL). The architecture must be highly available across two availability zones.
