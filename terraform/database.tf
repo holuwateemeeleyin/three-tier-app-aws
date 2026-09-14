@@ -17,11 +17,11 @@ resource "aws_db_subnet_group" "database" {
 # PostgreSQL RDS Database
 # This is the database tier of the three-tier architecture.
 resource "aws_db_instance" "postgres" {
-  engine = "postgres"
-  instance_class = var.db_instance_class
-  allocated_storage = 20
-  storage_encrypted = true
-  multi_az = true
+  engine               = "postgres"
+  instance_class       = var.db_instance_class
+  allocated_storage    = 20
+  storage_encrypted    = true
+  multi_az             = true
   db_subnet_group_name = aws_db_subnet_group.database.name
 
   # Only the application tier can connect to PostgreSQL.
@@ -34,14 +34,14 @@ resource "aws_db_instance" "postgres" {
 
   # Database credentials.
   # The password is managed by AWS Secrets Manager instead of being stored directly in this Terraform configuration.
-  username                  = var.db_username
+  username                    = var.db_username
   manage_master_user_password = true
-  
+
   backup_retention_period = 1
-  apply_immediately = true
-  skip_final_snapshot = true
-  deletion_protection = false
-  copy_tags_to_snapshot = true
+  apply_immediately       = true
+  skip_final_snapshot     = true
+  deletion_protection     = false
+  copy_tags_to_snapshot   = true
 
   tags = {
     Name        = "three-tier-postgres"
