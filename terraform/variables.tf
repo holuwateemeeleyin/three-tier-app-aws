@@ -39,3 +39,9 @@ variable "db_instance_class" {
   type        = string
   default     = "db.t3.micro"
 }
+
+variable "db_username" {
+  description = "Master username for the PostgreSQL database"
+  type        = string
+  default     = "appadmin"
+}
