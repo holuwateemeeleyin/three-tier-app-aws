@@ -20,6 +20,11 @@ resource "aws_instance" "web" {
     aws_security_group.web.id
   ]
 
+  # Encrypt the web server root volume.
+  root_block_device {
+    encrypted = true
+  }
+
   # Automatically install and configure Nginx
   # when the EC2 instance is launched.
   user_data = <<-EOF
