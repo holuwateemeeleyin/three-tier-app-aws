@@ -20,35 +20,47 @@ resource "aws_instance" "web" {
     aws_security_group.web.id
   ]
 
+  # Automatically install and configure Nginx
+  # when the EC2 instance is launched.
   user_data = <<-EOF
               #!/bin/bash
 
-              # Update installed packages.
+              
               dnf update -y
-
-              # Install Nginx.
               dnf install -y nginx
 
-              # Start Nginx immediately.
+              # Configure Nginx as a reverse proxy.
+              # Requests received by Nginx will be forwarded
+              # to the Node.js application servers.
+              cat > /etc/nginx/conf.d/app.conf <<NGINX
+              upstream node_app {
+                  server ${aws_instance.app[0].private_ip}:3000;
+                  server ${aws_instance.app[1].private_ip}:3000;
+              }
+
+              server {
+                  listen 80;
+                  server_name _;
+
+                  location / {
+                      proxy_pass http://node_app;
+
+                      proxy_set_header Host \$host;
+                      proxy_set_header X-Real-IP \$remote_addr;
+                      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                      proxy_set_header X-Forwarded-Proto \$scheme;
+                  }
+              }
+              NGINX
+
+              # Test the Nginx configuration before starting it.
+              nginx -t
+              
+              # Start the Nginx service.
               systemctl start nginx
 
-              # Make sure Nginx starts automatically after reboot.
+              # To make sure Nginx starts automatically after reboot.
               systemctl enable nginx
-
-              # Create a simple page so we can test
-              # that the web server is working.
-              cat > /usr/share/nginx/html/index.html <<HTML
-              <!DOCTYPE html>
-              <html>
-              <head>
-                  <title>Three Tier Application</title>
-              </head>
-              <body>
-                  <h1>Web Tier is Working</h1>
-                  <p>Nginx server: ${count.index + 1}</p>
-              </body>
-              </html>
-              HTML
               EOF
 
   tags = {
